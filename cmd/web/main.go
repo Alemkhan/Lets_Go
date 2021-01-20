@@ -3,26 +3,31 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/golangcollege/sessions"
 	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"snippetbox.com/pkg/models/pgx"
+	"time"
 )
 
 type application struct {
-
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippet  *pgx.SnippetModel
-
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	session       *sessions.Session
+	snippet       *pgx.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
 
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	connStr := flag.String("connStr", "postgresql://localhost/godb?user=postgres&password=1337", "PostGreSQL")
+	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
+
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -35,10 +40,20 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippet:  &pgx.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		session:       session,
+		snippet:       &pgx.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	srv := &http.Server{
