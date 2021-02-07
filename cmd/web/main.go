@@ -25,7 +25,7 @@ type application struct {
 func main() {
 
 	addr := flag.String("addr", ":7070", "HTTP network address")
-	connStr := flag.String("connStr", "postgresql://localhost/godb?user=postgres&password=1337", "PostGreSQL")
+	connStr := flag.String("connStr", os.Getenv("CONN"), "PostGreSQL")
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
 
 	flag.Parse()

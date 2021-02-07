@@ -25,7 +25,3 @@ INSERT INTO snippets (title, content, created, expires) VALUES (
 current_date,
 current_date + INTERVAL '7 day'
 );
-
-CREATE USER postgre_user;
-GRANT SELECT, INSERT ON snippets TO postger_user;
-ALTER USER postger_user WITH PASSWORD '1337';

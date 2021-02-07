@@ -1,6 +1,6 @@
 version: '3.4'
 services:
-  snippets:
+  snippetbox:
     restart: always
     environment:
       CONN: "postgresql://host.docker.internal/godb?user=postgres&password=1337"
