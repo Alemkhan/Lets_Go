@@ -1,0 +1,24 @@
+version: '3.4'
+services:
+  snippets:
+    restart: always
+    environment:
+      CONN: "postgresql://host.docker.internal/godb?user=postgres&password=1337"
+    depends_on:
+      - snippetsdb
+    ports:
+      - "7070:7070"
+    build:
+      dockerfile: Dockerfile
+      context: .
+  snippetsdb:
+    image: "postgres"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1337
+      POSTGRES_DB: godb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker.sql:/docker-entrypoint-initdb.d/init.sql
